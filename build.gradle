@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'maven'
+    id 'net.researchgate.release' version '2.4.0'
+}
+
+group 'ro.szzsa.keepalive'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.14'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = 'ro.szzsa.keepalive.cli.CommandLineInterface'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://nexus2-szzs.rhcloud.com/content/repositories/releases/"
+    }
+}
+
+dependencies {
+    compile group: 'ro.szzsa.keepalive', name: 'keepalive-core', version: '1.0'
+}
+
+release {
+    failOnUnversionedFiles = false
+    failOnCommitNeeded = false
+}
+
+def nexusUrl = project.hasProperty('nexusUrl') ? nexusUrl : ''
+def nexusUsername = project.hasProperty('nexusUsername') ? nexusUsername : ''
+def nexusPassword = project.hasProperty('nexusPassword') ? nexusPassword : ''
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "${nexusUrl}/content/repositories/releases") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+            snapshotRepository(url: "${nexusUrl}/content/repositories/snapshots") {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+        }
+    }
+}
